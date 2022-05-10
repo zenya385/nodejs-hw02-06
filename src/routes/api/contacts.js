@@ -2,8 +2,10 @@ const express = require("express");
 const {
   addPostValidation,
   patchValidation,
+  patchStatusValidation,
 } = require("../../middleware/validationSchema");
 const router = express.Router();
+
 const {
   listContacts,
   getContactById,
@@ -12,12 +14,12 @@ const {
   updateContact,
 } = require("../../models/contacts");
 
-router.get("/", async (req, res, next) => {
+router.get("/", async (req, res) => {
   const contact = await listContacts();
   res.json(contact);
 });
 
-router.get("/:contactId", async (req, res, next) => {
+router.get("/:contactId", async (req, res) => {
   const { contactId } = req.params;
   const contactById = await getContactById(contactId);
   if (!contactById) {
@@ -26,13 +28,13 @@ router.get("/:contactId", async (req, res, next) => {
   res.status(200).json(contactById);
 });
 
-router.post("/", addPostValidation, async (req, res, next) => {
-  const { name, email, phone } = req.body;
-  const newContact = await addContact(name, email, phone);
+router.post("/", addPostValidation, async (req, res) => {
+  const { name, email, phone, favorite } = req.body;
+  const newContact = await addContact(name, email, phone, favorite);
   res.status(201).json({ status: "success", newContact });
 });
 
-router.delete("/:contactId", async (req, res, next) => {
+router.delete("/:contactId", async (req, res) => {
   const { contactId } = req.params;
   const contactById = await getContactById(contactId);
   if (!contactById) {
@@ -45,7 +47,7 @@ router.delete("/:contactId", async (req, res, next) => {
 
 router.put("/:contactId", addPostValidation, async (req, res) => {
   const { contactId } = req.params;
-  const { name, email, phone } = req.body;
+  const { name, email, phone, favorite } = req.body;
   const contactById = await getContactById(contactId);
   if (!contactById) {
     return res.status(404).json({ status: "Not found" });
@@ -54,6 +56,7 @@ router.put("/:contactId", addPostValidation, async (req, res) => {
       name,
       email,
       phone,
+      favorite,
     });
     res.status(200).json({ status: "success", updateContactItem });
   }
@@ -61,7 +64,7 @@ router.put("/:contactId", addPostValidation, async (req, res) => {
 
 router.patch("/:contactId", patchValidation, async (req, res) => {
   const { contactId } = req.params;
-  const { name, email, phone } = req.body;
+  const { name, email, phone, favorite } = req.body;
   const contactById = await getContactById(contactId);
   if (!contactById) {
     return res.status(404).json({ status: "Not found" });
@@ -70,9 +73,28 @@ router.patch("/:contactId", patchValidation, async (req, res) => {
       name,
       email,
       phone,
+      favorite,
     });
     res.status(200).json({ status: "success", updateContactItem });
   }
 });
+
+router.patch(
+  "/:contactId/favorite",
+  patchStatusValidation,
+  async (req, res) => {
+    const { contactId } = req.params;
+    const { favorite } = req.body;
+    const contactById = await getContactById(contactId);
+    if (!contactById) {
+      return res.status(404).json({ status: "Not found" });
+    } else {
+      const updateContactItem = await updateContact(contactId, {
+        favorite,
+      });
+      res.status(200).json({ status: "success", updateContactItem });
+    }
+  }
+);
 
 module.exports = router;

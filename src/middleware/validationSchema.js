@@ -33,11 +33,26 @@ module.exports = {
         })
         .optional(),
       phone: Joi.string(),
+      favorite: Joi.boolean(),
     });
 
     const validationResult = schemaValid.validate(req.body);
     if (validationResult.error) {
       return res.status(404).json({ status: validationResult.error.details });
+    }
+    next();
+  },
+  patchStatusValidation: (req, res, next) => {
+    const schemaValid = Joi.object({
+      favorite: Joi.boolean().required(),
+    });
+
+    const validationResult = schemaValid.validate(req.body);
+    if (validationResult.error) {
+      return res.status(400).json({
+        message: "missing field favorite",
+        status: validationResult.error.details,
+      });
     }
     next();
   },

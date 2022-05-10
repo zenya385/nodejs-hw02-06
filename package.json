@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "cross-env NODE_ENV=production node ./src/server.js",
-    "start:dev": "cross-env NODE_ENV=development nodemon ./src/server.js",
+    "dev": "cross-env NODE_ENV=development nodemon ./src/server.js",
     "lint": "eslint **/*.js",
     "lint:fix": "eslint --fix **/*.js"
   },
@@ -13,8 +13,9 @@
     "cross-env": "7.0.3",
     "dotenv": "^16.0.0",
     "express": "4.17.1",
-    "mongodb": "^4.5.0",
     "joi": "^17.6.0",
+    "mongodb": "^4.5.0",
+    "mongoose": "^6.3.2",
     "morgan": "1.10.0"
   },
   "devDependencies": {
@@ -25,18 +26,5 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "5.2.0",
     "nodemon": "2.0.15"
-  },
-  "description": "Выполните форк этого репозитория для выполнения домашних заданий (2-6)\r Форк создаст репозиторий на вашем http://github.com",
-  "main": ".eslintrc.js",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/zenya385/nodejs-hw02-06.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/zenya385/nodejs-hw02-06/issues"
-  },
-  "homepage": "https://github.com/zenya385/nodejs-hw02-06#readme"
+  }
 }
