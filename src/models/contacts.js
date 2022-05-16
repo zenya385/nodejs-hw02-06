@@ -1,67 +1,30 @@
 const { Contacts } = require("../db/contactsModel");
 
-const listContacts = async () => {
-  try {
-    const contacts = await Contacts.find();
+const listContacts = async () => await Contacts.find();
 
-    return contacts;
-  } catch (error) {
-    console.error(error.message);
-  }
-};
+const getContactById = async (contactId) =>
+  await Contacts.findOne({ _id: contactId });
 
-const getContactById = async (contactId) => {
-  try {
-    const contactById = await Contacts.findOne({ _id: contactId });
-    return contactById;
-  } catch (error) {
-    console.error(error.message);
-  }
-};
+const removeContact = async (contactId) =>
+await Contacts.findByIdAndRemove({ contactId });
 
-const removeContact = async (contactId) => {
-  try {
-    const contact = Contacts.findByIdAndRemove({ _id: contactId });
-    return contact;
-  } catch (error) {
-    console.error(error.message);
-  }
-};
+const addContact = async (name, email, phone, favorite) => 
+ await Contacts.create({ name, email, phone, favorite });
 
-const addContact = async (name, email, phone, favorite) => {
-  try {
-    const newContact = Contacts.create({ name, email, phone, favorite });
-    return newContact;
-  } catch (error) {
-    console.error(error.message);
-  }
-};
 
-const updateContact = async (contactId, body) => {
-  try {
-    const updateContactItem = Contacts.findByIdAndUpdate(
+
+const updateContact = async (contactId, body) => 
+await Contacts.findByIdAndUpdate(
+      { _id: contactId },
+      body,
+      { new: true }
+);
+const updateStatusContact = async (contactId, body) =>
+await Contacts.findByIdAndUpdate(
       { _id: contactId },
       body,
       { new: true }
     );
-    return updateContactItem;
-  } catch (error) {
-    console.error(error.message);
-  }
-};
-
-const updateStatusContact = async (contactId, body) => {
-  try {
-    const updateContactItem = Contacts.findByIdAndUpdate(
-      { _id: contactId },
-      body,
-      { new: true }
-    );
-    return updateContactItem;
-  } catch (error) {
-    console.error(error.message);
-  }
-};
 
 module.exports = {
   listContacts,
