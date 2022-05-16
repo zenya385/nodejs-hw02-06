@@ -3,7 +3,7 @@ const { Contacts } = require("../db/contactsModel");
 const listContacts = async () => {
   try {
     const contacts = await Contacts.find();
-    console.log("contacts", contacts);
+
     return contacts;
   } catch (error) {
     console.error(error.message);
