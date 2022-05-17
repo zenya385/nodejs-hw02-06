@@ -16,7 +16,6 @@ const authenticate = async (req, res, next) => {
       }
       jwt.verify(token, JWT_SECRET);
       const user = await Users.findOne({ token });
-      console.log("user", user);
       if (!user) {
         throw new Unauthorized("Not authorized");
       }
