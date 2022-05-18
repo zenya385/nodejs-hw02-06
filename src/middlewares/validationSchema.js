@@ -7,10 +7,12 @@ module.exports = {
       email: Joi.string()
         .email({
           minDomainSegments: 2,
-          tlds: { allow: ["com", "net", "ua"] },
+          tlds: { allow: ["com", "net", "ca", "ua"] },
         })
         .required(),
       phone: Joi.string().required(),
+      favorite: Joi.boolean().optional(),
+      owner: Joi.string().optional(),
     });
 
     const validationResult = schemaValid.validate(req.body);
@@ -34,6 +36,7 @@ module.exports = {
         .optional(),
       phone: Joi.string(),
       favorite: Joi.boolean(),
+      owner: Joi.string().optional(),
     });
 
     const validationResult = schemaValid.validate(req.body);
@@ -56,4 +59,26 @@ module.exports = {
     }
     next();
   },
+  postAuthValidation: (req, res, next) => {
+    const schemaValid = Joi.object({
+      email: Joi.string()
+        .email({
+          minDomainSegments: 2,
+          tlds: { allow: ["com", "net"] },
+        })
+        .optional(),
+      password: Joi.string().required(),
+      subscription: Joi.string().optional(),
+    });
+
+    const validationResult = schemaValid.validate(req.body);
+    if (validationResult.error) {
+      return res.status(400).json({
+        contentType: "application/json",
+        ResponseBody: validationResult.error.details,
+      });
+    }
+    next();
+  },
 };
+
