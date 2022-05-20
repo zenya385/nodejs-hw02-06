@@ -1,7 +1,13 @@
 const express = require("express");
 const logger = require("morgan");
 const cors = require("cors");
+const multer = require("multer");
+const mime = require("mime-types");
+const uuid = require("uuid");
+
 require("dotenv").config();
+
+
 
 const contactsRouter = require("./routes/api/contacts");
 const usersRouter = require("./routes/api/users");
@@ -26,3 +32,20 @@ app.use((err, req, res, next) => {
 });
 
 module.exports = app;
+
+
+// const multer = require("multer");
+// const upload = multer({
+//   storage: multer.diskStorage({
+//     filename: (req, file, cb) => {
+//       const extname = mime.extension(file.mimetype);
+//       const filename = uuid.v4() + "." + extname;
+//       cb(null, filename);
+//     },
+//     destination: "public",
+//   }),
+// app.use("/avatars", express.static("public/avatars"));
+// app.post("/avatar", upload.single("avatar"), function (req, res, next) {
+//   res.send();
+// });
+// http://localhost:3000/avatars
