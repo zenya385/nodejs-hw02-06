@@ -1,5 +1,8 @@
 const express = require("express");
-const authenticate = require("../../middlewares/authorize");
+const multer = require("multer");
+const mime = require("mime-types");
+const uuid = require("uuid");
+const authorize  = require("../../middlewares/authorize");
 const {
   catchRegErrors,
   catchLogErrors,
@@ -12,7 +15,19 @@ const {
   signupUser,
   loginUser,
   logoutUser,
-  currentUser } = require("../../models/users");
+  currentUser,
+  avatarsUpdate } = require("../../models/users");
+
+  const upload = multer({
+    storage: multer.diskStorage({
+      filename: (req, file, cb) => {
+        const extname = mime.extension(file.mimetype);
+        const filename = uuid.v4() + "." + extname;
+        cb(null, filename);
+      },
+      destination: "./tmp",
+    }),
+  });
 
 router.post(
   "/signup",
@@ -45,7 +60,7 @@ router.post(
 
 router.get(
   "/logout",
-  authenticate,
+  authorize ,
   catchErrors(async (req, res, next) => {
     await logoutUser(req.user.token); 
     res.sendStatus(204);
@@ -54,11 +69,21 @@ router.get(
 
 router.get(
   "/current",
-  authenticate,
+  authorize ,
   catchErrors(async (req, res, next) => {
  const user = await currentUser(req.user.token);
     res.status(200).send(user);
   })
 );
+router.patch(
+  "/avatars",
+  authorize,
+  upload.single("avatar"),
+  catchErrors(async (req, res, next) => {
+    const user = await avatarsUpdate(req.user.token, req.file);
+    res.status(200).send(user);
+  })
+);
+
 
 module.exports = router;
