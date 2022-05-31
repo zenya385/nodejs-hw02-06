@@ -21,8 +21,17 @@ const usersSchema =new mongoose.Schema({
       },
       avatarURL: {
         type: String,
-        default: ""
-      }
+        default: "",
+      },
+      verify: {
+        type: Boolean,
+        default: false,
+      },
+      verificationToken: {
+        type: String,
+        required: [true, 'Verify token is required'],
+      },
+
 })
 
 const Users = mongoose.model('users', usersSchema);

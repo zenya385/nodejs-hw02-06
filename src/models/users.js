@@ -4,6 +4,9 @@ const jwt = require("jsonwebtoken");
 const gravatar = require("gravatar");
 const Jimp = require("jimp");
 const fs = require("fs").promises;
+const sgMail = require("@sendgrid/mail");
+const uuid = require("uuid");
+
 
 require("dotenv").config();
 
@@ -17,8 +20,28 @@ const signupUser = async (body) => {
       Number(process.env.BCRYPT_SALT_ROUNDS)
     ),
     subscription,
-    avatarURL:  gravatar.url(email, { s: "100", r: "x", d: "retro" }, false)
+    avatarURL: gravatar.url(email, { s: "100", r: "x", d: "retro" }, false),
+    verificationToken: uuid.v4()
+
   });
+  const verificationToken = uuid.v4();
+
+  sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+  const msg = {
+    to: email,
+    from: "zeno385@meta.ua",
+    subject: "Sending  verification email",
+    text: `http://localhost:3000/api/users/verify/${verificationToken}`,
+    html: `<p>verification <a href="http://localhost:3000/api/users/verify/${verificationToken}">link</a></p>`,
+  };
+  sgMail
+    .send(msg)
+    .then(() => {
+      console.log("Email sent");
+    })
+    .catch((error) => {
+      console.error(error);
+    });
   return isSingup;
 };
 const loginUser = async (body) => {
@@ -50,25 +73,70 @@ const currentUser = async (token) => {
 };
 
 const avatarsUpdate = async (token, body) => {
- const { path, filename } = body;
- const newFile = await Jimp.read(path)
- const newPath = "./public/avatars/" + filename;
- await newFile.resize(250, 250).writeAsync(newPath);
- await fs.unlink(path);
+  const { path, filename } = body;
+  const newFile = await Jimp.read(path);
+  const newPath = "./public/avatars/" + filename;
+  await newFile.resize(250, 250).writeAsync(newPath);
+  await fs.unlink(path);
 
- const user = await Users.findOneAndUpdate(
-   { token },
-   { avatarURL: newPath },
-   { new: true }
- );
+  const user = await Users.findOneAndUpdate(
+    { token },
+    { avatarURL: newPath },
+    { new: true }
+  );
   return user;
 };
+
+const verificationUser = async (verificationToken) => {  
+  const user = await Users.findOneAndUpdate(
+    verificationToken,
+    {
+      verificationToken: null,
+      verify: true,
+    },
+
+    { new: true }
+  );
+  return user;
+};
+
+const verificationSecondUser = async (body) => {
+  const { email } = body;
+  const user = await Users.findOne({ email });
+  if (!user.verify) {
+    const verificationToken = uuid.v4();
+
+    sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+    const msg = {
+      to: email,
+      from: "zeno385@meta.ua",
+      subject: "Sending  verification email",
+      text: `http://localhost:3000/api/users/verify/${verificationToken}`,
+      html: `<p>verification <a href="http://localhost:3000/api/users/verify/${verificationToken}">link</a></p>`,
+    };
+   return await  sgMail
+      .send(msg)
+      .then(() => {
+        console.log("Email sent");
+        return true;
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  } else {
+    return false;
+  }
+};
+
 
 module.exports = {
   signupUser,
   loginUser,
   logoutUser,
   currentUser,
-  avatarsUpdate
+  verificationUser,
+  avatarsUpdate,
+  verificationSecondUser
+
   
 };
