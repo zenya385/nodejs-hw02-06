@@ -7,10 +7,12 @@ const fs = require("fs").promises;
 const sgMail = require("@sendgrid/mail");
 const uuid = require("uuid");
 
+
 require("dotenv").config();
 
 const signupUser = async (body) => {
-  const { email, password, subscription } = body;
+  const { email, password, subscription, } = body;
+
   const isSingup = await Users.create({
     email,
     password: await bcryptjs.hash(
@@ -20,6 +22,7 @@ const signupUser = async (body) => {
     subscription,
     avatarURL: gravatar.url(email, { s: "100", r: "x", d: "retro" }, false),
     verificationToken: uuid.v4()
+
   });
   const verificationToken = uuid.v4();
 
@@ -64,7 +67,7 @@ const logoutUser  = async (token) => {
 const currentUser = async (token) => {
   const user = await Users.findOne(
     { token },
-    { email: 1, subscription: 1, _id: 0 }
+    { email: 1, subscription: 1, avatarURL: 1, _id: 0 }
   );
   return user;
 };
@@ -125,6 +128,7 @@ const verificationSecondUser = async (body) => {
   }
 };
 
+
 module.exports = {
   signupUser,
   loginUser,
@@ -133,5 +137,6 @@ module.exports = {
   verificationUser,
   avatarsUpdate,
   verificationSecondUser
+
   
 };

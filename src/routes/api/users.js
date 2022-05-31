@@ -1,5 +1,8 @@
 const express = require("express");
-const authenticate = require("../../middlewares/authorize");
+const multer = require("multer");
+const mime = require("mime-types");
+const uuid = require("uuid");
+const authorize  = require("../../middlewares/authorize");
 const {
   catchRegErrors,
   catchLogErrors,
@@ -34,6 +37,7 @@ const upload = multer({
   }),
 });
 
+
 router.post(
   "/signup",
   postAuthValidation,
@@ -65,7 +69,7 @@ router.post(
 
 router.get(
   "/logout",
-  authenticate,
+  authorize ,
   catchErrors(async (req, res, next) => {
     await logoutUser(req.user.token); 
     res.sendStatus(204);
@@ -74,12 +78,22 @@ router.get(
 
 router.get(
   "/current",
-  authenticate,
+  authorize ,
   catchErrors(async (req, res, next) => {
  const user = await currentUser(req.user.token);
     res.status(200).send(user);
   })
 );
+router.patch(
+  "/avatars",
+  authorize,
+  upload.single("avatar"),
+  catchErrors(async (req, res, next) => {
+    const user = await avatarsUpdate(req.user.token, req.file);
+    res.status(200).send(user);
+  })
+);
+
 
 router.patch(
   "/avatars",
