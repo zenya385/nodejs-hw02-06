@@ -22,10 +22,6 @@ const {
   verificationSecondUser
  } = require("../../models/users");
 
- const multer = require("multer");
-const mime = require("mime-types");
-const uuid = require("uuid");
-
 const upload = multer({
   storage: multer.diskStorage({
     filename: (req, file, cb) => {
@@ -97,7 +93,7 @@ router.patch(
 
 router.patch(
   "/avatars",
-  authenticate,
+  authorize,
   upload.single("avatar"),
   catchErrors(async (req, res, next) => {
     const user = await avatarsUpdate(req.user.token, req.file);
